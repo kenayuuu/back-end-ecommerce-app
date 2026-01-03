@@ -64,6 +64,28 @@ services:
       - "4000:4000"
     container_name: user-services
     restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${USER_DB_HOST}
+      - DB_NAME=${USER_DB_NAME}
+      - DB_USER=${USER_DB_USER}
+      - DB_PASSWORD=${USER_DB_PASSWORD}
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${USER_DB_USER}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+      POSTGRES_DB: ${USER_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-db-data:/var/lib/postgresql/data
+    container_name: postgres-db
+    restart: always
 
   mongo-db:
     image: mongo:latest
@@ -99,3 +121,4 @@ services:
 volumes:
     product-db-data: 
     mongo-db-data:
+    postgres-db-data:

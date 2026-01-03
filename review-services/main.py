@@ -1,5 +1,16 @@
 from fastapi import FastAPI, Form, HTTPException
 from database import reviews_collection
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # sementara
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app = FastAPI(title="Review Service")
 
