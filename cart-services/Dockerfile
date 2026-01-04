@@ -1,7 +1,3 @@
-
-# ============================================
-# Cart Service (Laravel Lumen) - Dockerfile
-# ============================================
 FROM php:8.2-cli
 
 # System dependencies
@@ -13,25 +9,18 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Working dir di dalam container
-WORKDIR /var/www
+# Install MongoDB extension
+RUN pecl install mongodb \
+    && docker-php-ext-enable mongodb
 
-# 1) Generate project Lumen di /var/www/src
-#    (ini yang bikin folder public/, bootstrap/, dll)
-RUN composer create-project --prefer-dist laravel/lumen:^10.0 src
-
-# Pindah ke folder lumen
 WORKDIR /var/www/src
 
-# 2) Copy file konfigurasi & routes dari host ke project lumen
-#    Host: cart-service/.env        -> Container: /var/www/src/.env
-COPY .env .env
+# Copy project Lumen dari host ke container
+COPY . .
 
-#    Host: cart-service/routes/web.php -> Container: /var/www/src/routes/web.php
-COPY routes/web.php routes/web.php
+# Install dependencies
+RUN composer install --ignore-platform-req=ext-mongodb
 
-# Expose port
 EXPOSE 8000
 
-# Jalankan Lumen dengan built-in server
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
